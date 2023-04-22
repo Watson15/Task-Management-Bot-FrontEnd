@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Suite Reporter</title>
+    <meta content="text/html;charset=utf-8" http-equiv="content-type">
+    <style rel="stylesheet">/* Inspired by https://github.com/Hargne/jest-html-reporter */
+
+:root {
+  --body-color: #333;
+  --body-bg: #fff;
+  --strong-color: #000;
+  --feature-bg: #eee;
+  --feature-color: #777;
+  --duration-color: rgb(49, 49, 49);
+  --summary-passed: #4f8a10;
+  --summary-passed-border: #4f8a10;
+  --summary-failed: #d8000c;
+  --summary-failed-border: #d8000c;
+  --summary-undefined: #945901;
+  --summary-undefined-border: #ffdf61;
+  --summary-skipped: #76adff;
+  --summary-skipped-border: #76adff;
+  --passed-bg: #dff2bf;
+  --passed-step-bg: #c6dba3;
+  --passed-border: #b4cc8c;
+  --failed-bg: #f5c9cd;
+  --failed-step-bg: #ea868f;
+  --failed-border: #dd7a82;
+  --undefined-bg: #ffdf61;
+  --undefined-step-bg: #f1cb32;
+  --undefined-border: #917400;
+  --skipped-bg: #eef5ff;
+  --skipped-step-bg: #cfe2ff;
+  --skipped-border: #b8c9e4;
+  --commentary-bg: #b9b9b9;
+  --table-bg-odd: #fff;
+  --table-bg-even: #eee;
+  --button-bg: #666;
+  --button-color: #eee;
+  --button-bg-active: #898989;
+  --button-color-active: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --body-color: #ddd;
+    --body-bg: #000;
+    --strong-color: #fff;
+    --feature-bg: #222;
+    --feature-color: #aaa;
+    --duration-color: rgb(206, 206, 206);
+    --passed-bg: #42630a;
+    --passed-step-bg: #697e41;
+    --passed-border: #91a86b;
+    --failed-bg: #69272d;
+    --failed-step-bg: #a8666c;
+    --failed-border: #df888f;
+    --undefined-bg: #665a2a;
+    --undefined-step-bg: #b6940d;
+    --undefined-border: #dbb20e;
+    --skipped-bg: #345381;
+    --skipped-step-bg: #3d659e;
+    --skipped-border: #6981a8;
+    --commentary-bg: #5c5c5c;
+    --table-bg-odd: #555;
+    --table-bg-even: #444;
+    --button-bg: #555;
+    --button-color: #cdcdcd;
+    --button-bg-active: #898989;
+    --button-color-active: #fff;
+  }
+}
+
+/* GENERAL CONTENT */
+
+html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  color: var(--body-color);
+  background: var(--body-bg);
+}
+
+body {
+  padding: 1rem 1rem;
+  font-size: 0.85rem;
+}
+
+pre,
+pre * {
+  margin: 0;
+}
+
+/* ARROWS */
+.embed_button::after,
+.scenario-name::after {
+  position: absolute;
+  top: -0.5em;
+  left: -0.2em;
+  content: "\2304";
+  font-size: 1.8em;
+  transition: all 0.2s linear;
+}
+
+.embed_button.collapse::after,
+.collapse .scenario-name::after {
+  top: -0.29em;
+  left: -0.5em;
+  transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+}
+
+.embed_button,
+.scenario-name {
+  padding-left: 1.2em;
+  position: relative;
+}
+
+/*FEATURE CONTENT*/
+
+.feature-title {
+  font-size: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background-color: var(--feature-bg);
+  color: var(--feature-color);
+  padding: 0.5em 1rem;
+  margin-bottom: 5px;
+}
+
+.feature-icon {
+  height: 1.2em;
+  display: inline-block;
+  margin-right: 0.3em;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.feature-icon.contrast {
+  display: none;
+}
+
+.feature-title.contrast {
+  font-weight: bold;
+  font-size: 1.25rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.feature-summary-commentary {
+  border-left: 0.4rem solid var(--feature-color);
+  background-color: var(--commentary-bg);
+  color: var(--strong-color);
+  word-wrap: break-word;
+  max-width: 40%;
+  margin-right: 1rem;
+  margin-top: 0.2rem;
+  margin-left: 0.2rem;
+  padding: 0.5rem;
+  white-space: pre-wrap
+}
+
+.feature-summary-commentary.contrast {
+  background-color: rgb(36, 35, 35);
+  color: rgb(248, 248, 248);
+  font-size: 1rem;
+}
+
+.feature-summary-container {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px;
+  padding-right: 1rem;
+  margin-bottom: 5px;
+  background-color: var(--feature-bg);
+  color: var(--feature-color);
+  justify-content: start;
+  font-size: 0.8rem;
+}
+
+.feature-summary-container.contrast {
+  background-color: #000;
+  color: rgb(248, 248, 248);
+  font-size: 1rem;
+}
+
+.feature-additional-info-container {
+  padding: 5px;
+  background-color: var(--feature-bg);
+  color: var(--feature-color);
+  justify-content: start;
+  font-size: 0.8rem;
+  flex-basis: 100%;
+}
+
+.contrast .feature-additional-info-container {
+  background-color: #000;
+  color: rgb(248, 248, 248);
+  font-size: 1rem;
+}
+
+.feature-summary-stats {
+  margin-top: 0.2em;
+}
+
+.feature-summary-stats .button {
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.feature-summary-row {
+  color: var(--feature-color);
+  border-left: 0.4rem solid var(--feature-color);
+  padding-left: 0.5rem;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.feature-summary-row.passed {
+  color: var(--summary-passed);
+  border-left: 0.4rem solid var(--summary-passed-border);
+}
+
+.feature-summary-row.failed {
+  color: var(--summary-failed);
+  border-left: 0.4rem solid var(--summary-failed-border);
+}
+
+.feature-summary-row.undefined {
+  color: var(--summary-undefined);
+  border-left: 0.4rem solid var(--summary-undefined-border);
+}
+
+.feature-summary-row.skipped {
+  color: var(--summary-skipped);
+  border-left: 0.4rem solid var(--summary-skipped-border);
+}
+
+.feature-summary-row.contrast {
+  color: rgb(248, 248, 248);
+  border-left: 0.4rem solid rgb(248, 248, 248);
+}
+
+.feature-container {
+  margin-bottom: 2rem;
+}
+
+
+/*SCENARIO CONTENT*/
+.scenario-capsule {
+  padding: 1rem;
+  padding-right: 0.5rem;
+  padding-top: 0.3rem;
+  margin-bottom: 1rem;
+  color: var(--strong-color);
+}
+
+.scenario-header {
+  padding: 1rem;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  color: var(--strong-color);
+}
+
+.scenario-capsule:last-child {
+  border: 0;
+}
+
+.scenario-capsule {
+  background-color: var(--feature-bg);
+}
+
+.scenario-header.passed {
+  background-color: var(--passed-step-bg);
+}
+
+.scenario-header.failed {
+  background-color: var(--failed-step-bg);
+}
+
+.scenario-header.undefined {
+  background-color: var(--undefined-step-bg);
+}
+
+.scenario-header.skipped {
+  background-color: var(--skipped-step-bg);
+}
+
+.scenario-header.contrast,
+.scenario-capsule.contrast {
+  background-color: #000;
+  color: #fff;
+}
+
+.scenario-info {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1.25rem;
+}
+
+.scenario-name {
+  cursor: pointer;
+  font-weight: bold;
+  padding-bottom: 0.5em;
+}
+
+.scenario-duration {
+  align-self: center;
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-style: italic;
+  padding: 0 0.5em 0.5em 0;
+}
+
+.scenario-duration.contrast {
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.scenario-tags {
+  color: var(--body-color);
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin: 0.1rem 0.8em 0.5rem 0;
+  display: inline-block;
+}
+
+.scenario-tags.contrast {
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  margin: 0.1rem 1em 0.5rem 0;
+}
+
+
+/*STEP CONTENT*/
+.step-capsule {
+  margin: 2px 0 2px 2px;
+  padding: 0.5rem;
+  color: var(--strong-color);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+.step-capsule.passed {
+  background-color: var(--passed-step-bg);
+  border: 1px solid var(--passed-border);
+}
+
+.step-capsule.failed {
+  background-color: var(--failed-step-bg);
+  ;
+  border: 1px solid var(--failed-border);
+}
+
+.step-capsule.undefined {
+  background-color: var(--undefined-step-bg);
+  border: 1px solid var(--undefined-step-bg);
+}
+
+.step-capsule.skipped {
+  background-color: var(--skipped-step-bg);
+  border: 1px solid var(--skipped-border);
+}
+
+.step-capsule.commentary {
+  background-color: var(--commentary-bg);
+  margin-left: 1rem;
+}
+
+.step-capsule.contrast {
+  background-color: rgb(36, 35, 35);
+  color: #fff;
+  font-size: 1.25rem;
+  border: none;
+}
+
+.step-status {
+  display: none;
+  padding: 0 1rem 0 0;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.step-decorator {
+  padding: 0;
+  padding-right: 1.5rem;
+}
+
+.step-duration {
+  color: var(--duration-color);
+  font-style: italic;
+  padding: 0;
+  padding-right: 1.5rem;
+}
+
+.step-duration.contrast {
+  color: rgb(248, 248, 248);
+}
+
+/*EMBED CONTENT*/
+.messages {
+  margin: 0 0 4px 1em
+}
+
+.scenario-capsule .messages:last-child {
+  border-bottom: 1px dashed var(--strong-color);
+}
+
+.scenario-capsule .messages.contrast:last-child {
+  border-bottom: 1px dashed #fff;
+}
+
+.embed-capsule {
+  margin: 0.5em 0;
+}
+
+.embed_content {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 12px;
+  margin: 0.5rem;
+}
+
+.embed_button {
+  cursor: pointer;
+  margin: 0 1rem 0.5em 0;
+  text-decoration: underline;
+  color: var(--strong-color);
+  font-size: 12px;
+  width: max-content;
+}
+
+.embed_button.contrast {
+  color: #fff;
+  font-size: 20px;
+}
+
+/*TABLE FORMATTING*/
+th,
+td {
+  padding: 6px;
+}
+
+thead {
+  background-color: #333;
+  color: #fff;
+  cursor: pointer;
+}
+
+table {
+  color: var(--body-color);
+  margin: 2px 1em 4px 1em;
+  border-collapse: collapse;
+  border: 1px solid #000;
+  vertical-align: middle;
+}
+
+table.contrast {
+  font-size: 1rem;
+}
+
+table tbody tr:nth-child(odd) {
+  background-color: var(--table-bg-odd);
+}
+
+table tbody tr:nth-child(even) {
+  background-color: var(--table-bg-even);
+}
+
+table.contrast tbody tr {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+
+/*IMAGE AND LINK FORMATTING*/
+img,
+video {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--strong-color);
+}
+
+.contrast a:hover {
+  color: grey;
+  text-decoration: underline;
+  text-decoration-color: grey;
+}
+
+.scenario-header.collapse .scenario-tags,
+.scenario-capsule.collapse {
+  display: none;
+}
+
+.scenario-header.collapse {
+  padding: 0.5rem 1rem 0 1rem;
+  margin-bottom: 1rem;
+}
+
+/* BUTTONS andHELPER classes */
+/* Should be at bottom, to override rules above */
+.button {
+  display: inline-block;
+  color: var(--button-color);
+  background-color: var(--button-bg);
+  border-radius: 0.2em;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 0.5em 0.9em;
+  text-align: center;
+  cursor: pointer;
+}
+
+.button:hover {
+  text-decoration: none;
+  color: var(--button-color-active);
+  background-color: var(--button-bg-active);
+}
+
+.contrast .button {
+  color: #111;
+  background-color: #eee;
+}
+
+.contrast .button:hover {
+  text-decoration: none;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.display-block {
+  display: block;
+}
+
+.display-inline {
+  display: inline;
+}
+
+.display-block.display-inline {
+  display: inline-block;
+}
+
+.flex-gap {
+  column-gap: 1em;
+  row-gap: 2px;
+}
+
+.flex-left-space {
+  margin-left: auto;
+}
+
+.margin-top {
+  margin-top: 15px;
+}
+
+.margin-bottom {
+  margin-bottom: 15px;
+}
+
+/* SMALL SCREEN */
+/* Should be at bottom, to override rules above */
+@media only screen and (max-width: 750px) {
+  .feature-title {
+    flex-direction: column;
+  }
+
+  .feature-summary-container {
+    margin-left: 0;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    display: block;
+  }
+
+  .feature-additional-info-container {
+    margin-left: 0;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+  }
+
+  .feature-summary-commentary {
+    max-width: 100%;
+    margin-right: 0;
+  }
+
+  .flex-left-space {
+    margin-left: initial;
+  }
+
+  .feature-summary-stats {
+    margin-left: 0.2rem;
+  }
+
+  .scenario-capsule {
+    padding-right: 0rem;
+  }
+
+}</style>
+    <script type="text/javascript">function collapsible_toggle(id, parent) {
+    console.log(parent);
+    while (parent !== undefined && !parent.classList.contains("embed_button")) {
+        parent = parent.parentElement;
+        console.log(parent);
+    }
+    if (parent !== undefined) {
+        if (!parent.classList.contains("collapse")) {
+            parent.classList.add("collapse");
+        } else {
+            parent.classList.remove("collapse");
+        }
+    }
+    var elem = document.getElementById(id);
+    var visible_display = "block";
+    if (id.indexOf("table") >= 0) {
+        visible_display = "contents";
+    }
+    elem.style.display = (elem.style.display == "none" ? visible_display : "none");
+};
+
+function collapsible_summary(classname) {
+    var elem = document.getElementsByClassName(classname);
+    var visible_display = "";
+    for (var i = 0; i < elem.length; i++) {
+        elem[i].style.display = (elem[i].style.display == "none" ? visible_display : "none");
+    }
+};
+
+function expander(action, summary_block) {
+    var elem = Array.from(document.getElementsByClassName("scenario-capsule"));
+    elem = elem.concat(Array.from(document.getElementsByClassName("scenario-header")));
+    var feature_id = summary_block.parentElement.parentElement.id
+    for (var i = 0; i < elem.length; i++) {
+        if (feature_id != elem[i].parentElement.id) {
+            continue
+        }
+        if (action == "expand_all") {
+            elem[i].classList.remove("collapse")
+        } else if (action == "collapse_all") {
+            if (!elem[i].classList.contains("collapse")) {
+                elem[i].classList.add("collapse");
+            }
+        } else if (action == "expand_all_failed") {
+            if (!elem[i].classList.contains("passed")) {
+                elem[i].classList.remove("collapse");
+            } else {
+                if (!elem[i].classList.contains("collapse")) {
+                    elem[i].classList.add("collapse");
+                }
+            }
+        }
+    }
+};
+
+
+function expand_this_only(name) {
+    var id = name.id;
+    var capsule = document.getElementById(id + "-c");
+    var header = document.getElementById(id + "-h");
+    if (header.classList.contains("collapse")) {
+        header.classList.remove("collapse");
+        capsule.classList.remove("collapse");
+    } else {
+        header.classList.add("collapse");
+        capsule.classList.add("collapse");
+    }
+};
+
+
+function toggle_contrast_for(target_class) {
+    var elements = document.getElementsByClassName(target_class);
+    for (var i = 0; i < elements.length; i++) {
+        if (elements[i].classList.contains("contrast")) {
+            elements[i].classList.remove("contrast");
+        } else {
+            elements[i].classList.add("contrast");
+        }
+    }
+};
+
+function toggle_contrast() {
+    var step_status_items = document.getElementsByClassName("step-status");
+    for (var i = 0; i < step_status_items.length; i++) {
+        step_status_items[i].style.display = (step_status_items[i].style.display == "block" ? "none" : "block");
+    };
+
+    const contrast_classes = [
+        "feature-title",
+        "feature-summary-commentary",
+        "feature-summary-container",
+        "feature-summary-row",
+        "feature-icon",
+
+        "scenario-header",
+        "scenario-capsule",
+        "scenario-tags",
+        "scenario-duration",
+
+        "step-capsule",
+        "step-status",
+        "step-duration",
+
+        "messages",
+        "embed_button",
+        "link",
+        "table",
+
+    ];
+    contrast_classes.forEach(toggle_contrast_for);
+};
+
+function detect_contrast() {
+    var obj_div = document.createElement("div");
+    obj_div.style.color = "rgb(31, 41, 59)"
+    document.body.appendChild(obj_div);
+    var col = document.defaultView ? document.defaultView.getComputedStyle(obj_div, null).color : obj_div.currentStyle.color;
+    document.body.removeChild(obj_div);
+    col = col.replace(/ /g, "");
+    if (col !== "rgb(31,41,59)") {
+        console.log("High Contrast theme detected.")
+        toggle_contrast();
+    }
+}
+
+var element = document.createElement('div');
+var entity = /&(?:#x[a-f0-9]+|#[0-9]+|[a-z0-9]+);?/ig;
+
+function decodeHTMLEntities(str) {
+    str = str.replace(entity, function (m) {
+        element.innerHTML = m;
+        return element.textContent;
+    });
+    element.textContent = '';
+    return str;
+}
+
+function download_embed(id, filename) {
+    var elem = document.getElementById(id);
+    var child = elem.children[1];
+    var value = "";
+    var tag = child.tagName.toLowerCase();
+    if (tag === "span") {
+        filename += ".txt";
+        value = "data:text/plain," + encodeURIComponent(decodeHTMLEntities(child.innerHTML));
+    } else if (tag == "video") {
+        filename += ".webm";
+        value = child.children[0].src;
+    } else if (tag == "img") {
+        filename += ".png";
+        value = child.src;
+    } else {
+        filename += ".html";
+        value = decodeHTMLEntities(child.innerHTML);
+    }
+    var link = document.createElement("a");
+    link.style.display = "none";
+    link.href = value;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click()
+    /* fix race in FF */
+    setTimeout(function () { document.body.removeChild(link); }, 2000);
+};</script>
+  </head>
+  <body onload="detect_contrast();">
+    <div class="feature-title flex-gap">
+      <span>Feature: Alert Functionality</span>
+      <span class="button flex-left-space" onclick="toggle_contrast('embed')">High contrast toggle</span>
+      <span class="button" onclick="collapsible_summary('feature-summary-container')">Summary</span>
+    </div>
+    <div class="feature-summary-container flex-gap" id="f1" style="display: none">
+      <div class="feature-summary-stats ">
+        <div class="feature-summary-row passed">Passed: 2</div>
+        <div class="feature-summary-row failed">Failed: 0</div>
+      </div>
+      <div class="feature-summary-stats flex-left-space">
+        <div class="feature-summary-row">Started: 09-04-2023 23:25:31</div>
+        <div class="feature-summary-row">Duration: 95.34</div>
+        <div class="feature-summary-row">Finished: 09-04-2023 23:27:07</div>
+      </div>
+      <div class="feature-summary-stats">
+        <span class="button display-block" onclick="expander('expand_all', this)">Expand All</span>
+        <span class="button display-block" onclick="expander('collapse_all', this)">Collapse All</span>
+        <span class="button display-block" onclick="expander('expand_all_failed', this)">Expand All Failed</span>
+      </div>
+      <div class="feature-additional-info-container" id="additional-info">
+        <div class="feature-additional-info">
+          <div class="feature-additional-info-row tester">tester: worker1</div>
+          <div class="feature-additional-info-row location">location: lab2</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-container" id="f1">
+      <div class="scenario-header passed" id="f1-s1-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f1-s1" onclick="expand_this_only(this)">Scenario: User creates an alert</div>
+          <div class="scenario-duration">Scenario duration: 5.28s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f1-s1-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(3.23s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs &lt;!add_alert &lt;id&gt;  </span>
+            <b>&quot;2077-04-09 11:55&quot;</b>
+            <span>&gt; with the id of a task</span>
+          </div>
+          <div class="step-duration">(0.45s)</div>
+          <span class="flex-left-space">features/steps/alert.py:9</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Alert has been assigned to the task!&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(1.59s)</div>
+          <span class="flex-left-space">features/steps/alert.py:14</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f1-s2-h">
+        <div class="scenario-tags">
+          <span>@slow</span>
+        </div>
+        <div class="scenario-info">
+          <div class="scenario-name" id="f1-s2" onclick="expand_this_only(this)">Scenario: Alert message is sent</div>
+          <div class="scenario-duration">Scenario duration: 67.18s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f1-s2-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(2.69s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>the task with id &lt;id&gt; has an alert time of </span>
+            <b>&quot;2023-04-09 11:55&quot;</b>
+            <span> added (a time in the past)</span>
+          </div>
+          <div class="step-duration">(0.67s)</div>
+          <span class="flex-left-space">features/steps/alert.py:22</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user waits </span>
+            <b>&quot;61&quot;</b>
+            <span> seconds</span>
+          </div>
+          <div class="step-duration">(61.01s)</div>
+          <span class="flex-left-space">features/steps/alert.py:27</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;@everyone An alert for a task with id: &lt;id&gt; has occured!&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(2.81s)</div>
+          <span class="flex-left-space">features/steps/alert.py:32</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+    </div>
+    <div class="feature-title flex-gap">
+      <span>Feature: Due Date</span>
+    </div>
+    <div class="feature-summary-container flex-gap" id="f2" style="display: none">
+      <div class="feature-summary-stats ">
+        <div class="feature-summary-row passed">Passed: 4</div>
+        <div class="feature-summary-row failed">Failed: 0</div>
+      </div>
+      <div class="feature-summary-stats flex-left-space">
+        <div class="feature-summary-row">Started: 09-04-2023 23:27:07</div>
+        <div class="feature-summary-row">Duration: 45.25</div>
+        <div class="feature-summary-row">Finished: 09-04-2023 23:27:52</div>
+      </div>
+      <div class="feature-summary-stats">
+        <span class="button display-block" onclick="expander('expand_all', this)">Expand All</span>
+        <span class="button display-block" onclick="expander('collapse_all', this)">Collapse All</span>
+        <span class="button display-block" onclick="expander('expand_all_failed', this)">Expand All Failed</span>
+      </div>
+      <div class="feature-additional-info-container" id="additional-info">
+        <div class="feature-additional-info">
+          <div class="feature-additional-info-row tester">tester: worker1</div>
+          <div class="feature-additional-info-row location">location: lab2</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-container" id="f2">
+      <div class="scenario-header passed" id="f2-s1-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f2-s1" onclick="expand_this_only(this)">Scenario: Correctly setting a due date</div>
+          <div class="scenario-duration">Scenario duration: 4.33s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f2-s1-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(1.38s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs &lt;!due_date &lt;id&gt; </span>
+            <b>&quot;2023-04-06 12:15&quot;</b>
+            <span>&gt; with the id of a task</span>
+          </div>
+          <div class="step-duration">(0.34s)</div>
+          <span class="flex-left-space">features/steps/due_date.py:8</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task &lt;id&gt; due date set to **2023-04-06 12:15**&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(2.61s)</div>
+          <span class="flex-left-space">features/steps/due_date.py:12</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f2-s2-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f2-s2" onclick="expand_this_only(this)">Scenario: Setting a due date with incorrect format</div>
+          <div class="scenario-duration">Scenario duration: 7.27s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f2-s2-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(0.55s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs &lt;!due_date &lt;id&gt; </span>
+            <b>&quot;12:15 2023/04/06&quot;</b>
+            <span>&gt; with the id of a task</span>
+          </div>
+          <div class="step-duration">(3.06s)</div>
+          <span class="flex-left-space">features/steps/due_date.py:8</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot responds with </span>
+            <b>&quot;Due date must be in format YYYY-MM-DD HH:MM&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(3.66s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:15</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f2-s3-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f2-s3" onclick="expand_this_only(this)">Scenario: Setting a due date for a task that doesn't exist</div>
+          <div class="scenario-duration">Scenario duration: 5.76s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f2-s3-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a task that does not exist</span>
+          </div>
+          <div class="step-duration">(1.22s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:22</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs &lt;!due_date &lt;id&gt; </span>
+            <b>&quot;12:15 2023/04/06&quot;</b>
+            <span>&gt; with the id of a task</span>
+          </div>
+          <div class="step-duration">(0.85s)</div>
+          <span class="flex-left-space">features/steps/due_date.py:8</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; does not exist&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(3.69s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:51</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f2-s4-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f2-s4" onclick="expand_this_only(this)">Scenario: User tries to set a due date on task in another server</div>
+          <div class="scenario-duration">Scenario duration: 5.21s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f2-s4-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a task in another server</span>
+          </div>
+          <div class="step-duration">(2.58s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:16</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs &lt;!due_date &lt;id&gt; </span>
+            <b>&quot;12:15 2023/04/06&quot;</b>
+            <span>&gt; with the id of a task</span>
+          </div>
+          <div class="step-duration">(0.98s)</div>
+          <span class="flex-left-space">features/steps/due_date.py:8</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; does not exist&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(1.65s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:51</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+    </div>
+    <div class="feature-title flex-gap">
+      <span>Feature: Task Creation</span>
+    </div>
+    <div class="feature-summary-container flex-gap" id="f3" style="display: none">
+      <div class="feature-summary-stats ">
+        <div class="feature-summary-row passed">Passed: 2</div>
+        <div class="feature-summary-row failed">Failed: 0</div>
+      </div>
+      <div class="feature-summary-stats flex-left-space">
+        <div class="feature-summary-row">Started: 09-04-2023 23:27:52</div>
+        <div class="feature-summary-row">Duration: 13.23</div>
+        <div class="feature-summary-row">Finished: 09-04-2023 23:28:05</div>
+      </div>
+      <div class="feature-summary-stats">
+        <span class="button display-block" onclick="expander('expand_all', this)">Expand All</span>
+        <span class="button display-block" onclick="expander('collapse_all', this)">Collapse All</span>
+        <span class="button display-block" onclick="expander('expand_all_failed', this)">Expand All Failed</span>
+      </div>
+      <div class="feature-additional-info-container" id="additional-info">
+        <div class="feature-additional-info">
+          <div class="feature-additional-info-row tester">tester: worker1</div>
+          <div class="feature-additional-info-row location">location: lab2</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-container" id="f3">
+      <div class="scenario-header passed" id="f3-s1-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f3-s1" onclick="expand_this_only(this)">Scenario: Successful task creation</div>
+          <div class="scenario-duration">Scenario duration: 3.99s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f3-s1-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!create_task new task&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(2.06s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;The task &quot;</b>
+            <span>new task</span>
+            <b>&quot; has been created with id &lt;id&gt;!&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(1.93s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:21</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f3-s2-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f3-s2" onclick="expand_this_only(this)">Scenario: Task creation no title</div>
+          <div class="scenario-duration">Scenario duration: 1.71s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f3-s2-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!create_task&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(0.37s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot responds with </span>
+            <b>&quot;No task name given&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(1.34s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:15</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+    </div>
+    <div class="feature-title flex-gap">
+      <span>Feature: Task Dashboard</span>
+    </div>
+    <div class="feature-summary-container flex-gap" id="f4" style="display: none">
+      <div class="feature-summary-stats ">
+        <div class="feature-summary-row passed">Passed: 2</div>
+        <div class="feature-summary-row failed">Failed: 0</div>
+      </div>
+      <div class="feature-summary-stats flex-left-space">
+        <div class="feature-summary-row">Started: 09-04-2023 23:28:05</div>
+        <div class="feature-summary-row">Duration: 34.16</div>
+        <div class="feature-summary-row">Finished: 09-04-2023 23:28:39</div>
+      </div>
+      <div class="feature-summary-stats">
+        <span class="button display-block" onclick="expander('expand_all', this)">Expand All</span>
+        <span class="button display-block" onclick="expander('collapse_all', this)">Collapse All</span>
+        <span class="button display-block" onclick="expander('expand_all_failed', this)">Expand All Failed</span>
+      </div>
+      <div class="feature-additional-info-container" id="additional-info">
+        <div class="feature-additional-info">
+          <div class="feature-additional-info-row tester">tester: worker1</div>
+          <div class="feature-additional-info-row location">location: lab2</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-container" id="f4">
+      <div class="scenario-header passed" id="f4-s1-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f4-s1" onclick="expand_this_only(this)">Scenario: User lists all tasks by due date</div>
+          <div class="scenario-duration">Scenario duration: 9.54s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f4-s1-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(3.89s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!list_tasks&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(2.63s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;id: &lt;id&gt;, Created task from test, [], None, None&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(3.02s)</div>
+          <span class="flex-left-space">features/steps/task_dashboard.py:9</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f4-s2-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f4-s2" onclick="expand_this_only(this)">Scenario: User lists all tasks by assignee</div>
+          <div class="scenario-duration">Scenario duration: 6.30s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f4-s2-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(1.77s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>a user testUser has been assigned to the task with id &lt;id&gt;</span>
+          </div>
+          <div class="step-duration">(1.77s)</div>
+          <span class="flex-left-space">features/steps/task_dashboard.py:16</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!list_tasks_by_user testUser&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(0.79s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;id: &lt;id&gt;, Created task from test, ['testUser'], None, None&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(1.97s)</div>
+          <span class="flex-left-space">features/steps/task_dashboard.py:21</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+    </div>
+    <div class="feature-title flex-gap">
+      <span>Feature: Task Deletion</span>
+    </div>
+    <div class="feature-summary-container flex-gap" id="f5" style="display: none">
+      <div class="feature-summary-stats ">
+        <div class="feature-summary-row passed">Passed: 3</div>
+        <div class="feature-summary-row failed">Failed: 0</div>
+      </div>
+      <div class="feature-summary-stats flex-left-space">
+        <div class="feature-summary-row">Started: 09-04-2023 23:28:39</div>
+        <div class="feature-summary-row">Duration: 39.26</div>
+        <div class="feature-summary-row">Finished: 09-04-2023 23:29:19</div>
+      </div>
+      <div class="feature-summary-stats">
+        <span class="button display-block" onclick="expander('expand_all', this)">Expand All</span>
+        <span class="button display-block" onclick="expander('collapse_all', this)">Collapse All</span>
+        <span class="button display-block" onclick="expander('expand_all_failed', this)">Expand All Failed</span>
+      </div>
+      <div class="feature-additional-info-container" id="additional-info">
+        <div class="feature-additional-info">
+          <div class="feature-additional-info-row tester">tester: worker1</div>
+          <div class="feature-additional-info-row location">location: lab2</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-container" id="f5">
+      <div class="scenario-header passed" id="f5-s1-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f5-s1" onclick="expand_this_only(this)">Scenario: Delete an existing task</div>
+          <div class="scenario-duration">Scenario duration: 8.03s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f5-s1-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(1.01s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!delete_task &lt;id&gt;&quot;</b>
+            <span> with the id of the task</span>
+          </div>
+          <div class="step-duration">(0.63s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:30</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; deleted&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(5.89s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:39</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>the task with that id is deleted</span>
+          </div>
+          <div class="step-duration">(0.50s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:46</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f5-s2-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f5-s2" onclick="expand_this_only(this)">Scenario: Delete a non-existant task</div>
+          <div class="scenario-duration">Scenario duration: 5.69s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f5-s2-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a task that does not exist</span>
+          </div>
+          <div class="step-duration">(2.91s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:22</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!delete_task &lt;id&gt;&quot;</b>
+            <span> with the id of the task</span>
+          </div>
+          <div class="step-duration">(0.68s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:30</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; does not exist&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(2.10s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:51</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f5-s3-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f5-s3" onclick="expand_this_only(this)">Scenario: User tries to delete a task from another server</div>
+          <div class="scenario-duration">Scenario duration: 10.21s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f5-s3-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a task in another server</span>
+          </div>
+          <div class="step-duration">(5.96s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:16</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!delete_task &lt;id&gt;&quot;</b>
+            <span> with the id of the task</span>
+          </div>
+          <div class="step-duration">(1.82s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:30</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; does not exist&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(2.42s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:51</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+    </div>
+    <div class="feature-title flex-gap">
+      <span>Feature: Assign users to tasks</span>
+    </div>
+    <div class="feature-summary-container flex-gap" id="f6" style="display: none">
+      <div class="feature-summary-stats ">
+        <div class="feature-summary-row passed">Passed: 3</div>
+        <div class="feature-summary-row failed">Failed: 0</div>
+      </div>
+      <div class="feature-summary-stats flex-left-space">
+        <div class="feature-summary-row">Started: 09-04-2023 23:29:19</div>
+        <div class="feature-summary-row">Duration: 28.44</div>
+        <div class="feature-summary-row">Finished: 09-04-2023 23:29:47</div>
+      </div>
+      <div class="feature-summary-stats">
+        <span class="button display-block" onclick="expander('expand_all', this)">Expand All</span>
+        <span class="button display-block" onclick="expander('collapse_all', this)">Collapse All</span>
+        <span class="button display-block" onclick="expander('expand_all_failed', this)">Expand All Failed</span>
+      </div>
+      <div class="feature-additional-info-container" id="additional-info">
+        <div class="feature-additional-info">
+          <div class="feature-additional-info-row tester">tester: worker1</div>
+          <div class="feature-additional-info-row location">location: lab2</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-container" id="f6">
+      <div class="scenario-header passed" id="f6-s1-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f6-s1" onclick="expand_this_only(this)">Scenario: Assign user to task</div>
+          <div class="scenario-duration">Scenario duration: 4.26s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f6-s1-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a created task</span>
+          </div>
+          <div class="step-duration">(0.65s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:10</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!assign_user &lt;id&gt; &quot;</b>
+            <span>testUser</span>
+            <b>&quot;&quot;</b>
+            <span> with the id of the task</span>
+          </div>
+          <div class="step-duration">(0.58s)</div>
+          <span class="flex-left-space">features/steps/task_assignment.py:3</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot responds with </span>
+            <b>&quot;[testUser] have been assigned to the task!&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(3.03s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:15</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f6-s2-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f6-s2" onclick="expand_this_only(this)">Scenario: Assign user to task which does not exist</div>
+          <div class="scenario-duration">Scenario duration: 4.81s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f6-s2-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.00s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a task that does not exist</span>
+          </div>
+          <div class="step-duration">(0.54s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:22</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!assign_user &lt;id&gt; &quot;</b>
+            <span>testUser</span>
+            <b>&quot;&quot;</b>
+            <span> with the id of the task</span>
+          </div>
+          <div class="step-duration">(0.30s)</div>
+          <span class="flex-left-space">features/steps/task_assignment.py:3</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; does not exist&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(3.98s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:51</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+      <div class="scenario-header passed" id="f6-s3-h">
+        <div class="scenario-info">
+          <div class="scenario-name" id="f6-s3" onclick="expand_this_only(this)">Scenario: Assign user to task in different server</div>
+          <div class="scenario-duration">Scenario duration: 6.96s</div>
+        </div>
+      </div>
+      <div class="scenario-capsule passed" id="f6-s3-c">
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Given </i></b>
+            <span>a user</span>
+          </div>
+          <div class="step-duration">(0.01s)</div>
+          <span class="flex-left-space">features/steps/task_creation.py:5</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>And </i></b>
+            <span>an id for a task in another server</span>
+          </div>
+          <div class="step-duration">(0.69s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:16</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>When </i></b>
+            <span>the user inputs </span>
+            <b>&quot;!assign_user &lt;id&gt; &quot;</b>
+            <span>testUser</span>
+            <b>&quot;&quot;</b>
+            <span> with the id of the task</span>
+          </div>
+          <div class="step-duration">(0.73s)</div>
+          <span class="flex-left-space">features/steps/task_assignment.py:3</span>
+        </div>
+        <div class="embeds"></div>
+        <div class="step-capsule passed ">
+          <div class="step-status">PASS</div>
+          <div class="step-decorator">
+            <b><i>Then </i></b>
+            <span>the bot outputs </span>
+            <b>&quot;Task with id &lt;id&gt; does not exist&quot;</b>
+            <span></span>
+          </div>
+          <div class="step-duration">(5.53s)</div>
+          <span class="flex-left-space">features/steps/task_deletion.py:51</span>
+        </div>
+        <div class="embeds"></div>
+      </div>
+    </div>
+  </body>
+</html>
